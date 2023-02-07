@@ -1,3 +1,5 @@
+import { prisma } from "./utils/db";
+
 const figlet = require("figlet");
 const { Command } = require("commander"); // add this line
 
@@ -20,8 +22,42 @@ program
 
 const options = program.opts();
 
-if (options.Todo) console.log(options.Todo);
-if (options.List) console.log("all todos");
+interface CreateTodoInput {
+    title: string;
+    desc: string;
+}
+
+if (options.Todo) {
+    console.log(options.Todo[0])
+    console.log(options.Todo[1])
+    const input: CreateTodoInput = {
+        title: options.Todo[0],
+        desc: options.Todo[1]
+    }
+    const createTodo = async (input: CreateTodoInput) => {
+        const res = await prisma.todo.create({
+            data: {
+                title: input.title,
+                desc: input.desc,
+            }
+        })
+        return res
+    }
+
+    createTodo(input).then((value) => {
+        console.log(value)
+    }
+    )
+
+}
+if (options.List) {
+    const ListTodo = async () => {
+        const res = await prisma.todo.findMany()
+        return res
+    }
+
+    ListTodo().then((value) => console.log(value))
+}
 if (options.TodoById) console.log(options.TodoById);
 if (options.Update) console.log(options.Update);
 if (options.Delete) console.log(options.Delete);
