@@ -1,7 +1,9 @@
 import { prisma } from "./utils/db";
+import type { Todo } from "@prisma/client"
 
 const figlet = require("figlet");
-const { Command } = require("commander"); // add this line
+const { Command } = require("commander");
+var Table = require('cli-table');
 
 
 const program = new Command();
@@ -11,16 +13,18 @@ console.log(figlet.textSync("Todo-CLI"));
 
 
 program
-  .version("1.0.0")
-  .description("a todo list cli tool")
-  .option("-l, --List", "List all todo item")
-  .option("-m, --Todo <type...>", "create a todo item")
-  .option("-li, --TodoById <type>", "list a single todo item by id")
-  .option("-u, --Update <type...>", "update a single todo item by id")
-  .option("-d, --Delete <type>", "delete a single todo item by id")
-  .parse(process.argv);
+    .version("1.0.0")
+    .description("a todo list cli tool")
+    .option("-l, --List", "List all todo item")
+    .option("-m, --Todo <type...>", "create a todo item")
+    .option("-li, --TodoById <type>", "list a single todo item by id")
+    .option("-u, --Update <type...>", "update a single todo item by id")
+    .option("-d, --Delete <type>", "delete a single todo item by id")
+    .parse(process.argv);
 
 const options = program.opts();
+
+
 
 interface CreateTodoInput {
     title: string;
@@ -45,7 +49,15 @@ if (options.Todo) {
     }
 
     createTodo(input).then((value) => {
-        console.log(value)
+        const table = new Table({
+            head: ["id", "title", "description", "status"],
+            colWidths: [20, 20, 20, 20]
+        })
+        const list: Todo | null = value;
+        table.push([list?.id, list?.title, list?.desc, list?.status])
+
+        console.log(table.toString());
+
     }
     )
 
@@ -56,7 +68,20 @@ if (options.List) {
         return res
     }
 
-    ListTodo().then((value) => console.log(value))
+    const table = new Table({
+        head: ["id", "title", "description", "status"],
+        colWidths: [20, 20, 20, 20]
+    })
+
+    ListTodo().then((value) => {
+        const list: Todo[] = value;
+
+        list.map(item => {
+            table.push([item.id, item.title, item.desc, item.status])
+        })
+
+        console.log(table.toString());
+    })
 }
 
 
@@ -73,7 +98,16 @@ if (options.TodoById) {
     }
 
     ListTodoById(id).then((value) => {
-        console.log(value)
+        const table = new Table({
+            head: ["id", "title", "description", "status"],
+            colWidths: [20, 20, 20, 20]
+        })
+        const list: Todo | null = value;
+        table.push([list?.id, list?.title, list?.desc, list?.status])
+
+        console.log(table.toString());
+
+
     })
 }
 
@@ -92,7 +126,7 @@ if (options.Update) {
         desc: options.Update[2],
         status: options.Update[3]
     }
-    
+
     const UpdateTodo = async (input: UpdateTodoInput) => {
         const res = await prisma.todo.update({
             where: {
@@ -108,7 +142,15 @@ if (options.Update) {
     }
 
     UpdateTodo(input).then((value) => {
-        console.log(value)
+        const table = new Table({
+            head: ["id", "title", "description", "status"],
+            colWidths: [20, 20, 20, 20]
+        })
+        const list: Todo | null = value;
+        table.push([list?.id, list?.title, list?.desc, list?.status])
+
+        console.log(table.toString());
+
     })
 }
 if (options.Delete) {
@@ -123,6 +165,14 @@ if (options.Delete) {
     }
 
     Del(id).then((value) => {
-        console.log(value)
+        const table = new Table({
+            head: ["id", "title", "description", "status"],
+            colWidths: [20, 20, 20, 20]
+        })
+        const list: Todo | null = value;
+        table.push([list?.id, list?.title, list?.desc, list?.status])
+
+        console.log(table.toString());
+
     })
 }
