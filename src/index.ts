@@ -58,6 +58,71 @@ if (options.List) {
 
     ListTodo().then((value) => console.log(value))
 }
-if (options.TodoById) console.log(options.TodoById);
-if (options.Update) console.log(options.Update);
-if (options.Delete) console.log(options.Delete);
+
+
+if (options.TodoById) {
+    console.log(options.TodoById[0])
+    const id: number = parseInt(options.TodoById[0])
+    const ListTodoById = async (id: number) => {
+        const res = await prisma.todo.findUnique({
+            where: {
+                id,
+            }
+        })
+        return res
+    }
+
+    ListTodoById(id).then((value) => {
+        console.log(value)
+    })
+}
+
+interface UpdateTodoInput {
+    id: number;
+    title: string;
+    desc: string;
+    status: string;
+}
+
+if (options.Update) {
+    const identifier = parseInt(options.Update[0])
+    const input: UpdateTodoInput = {
+        id: identifier,
+        title: options.Update[1],
+        desc: options.Update[2],
+        status: options.Update[3]
+    }
+    
+    const UpdateTodo = async (input: UpdateTodoInput) => {
+        const res = await prisma.todo.update({
+            where: {
+                id: input.id,
+            },
+            data: {
+                title: input.title,
+                desc: input.desc,
+                status: input.status,
+            }
+        })
+        return res
+    }
+
+    UpdateTodo(input).then((value) => {
+        console.log(value)
+    })
+}
+if (options.Delete) {
+    const id = parseInt(options.Delete[0])
+
+    const Del = async (id: number) => {
+        return await prisma.todo.delete({
+            where: {
+                id,
+            }
+        })
+    }
+
+    Del(id).then((value) => {
+        console.log(value)
+    })
+}
